@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from athletic_scraper.webdriver import WebDriverBuilder
+from core.webdriver import WebDriverBuilder
 
 
 class TestWebDriverBuilder:

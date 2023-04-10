@@ -3,13 +3,13 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from time import sleep
 from typing import List
-from athletic_scraper.models import Podcast, PodcastEpisode
+from core.models import Podcast, PodcastEpisode
 from bs4 import BeautifulSoup
 import json
 from polling2 import poll_decorator
 import urllib.request
-from athletic_scraper.podcasts import podcast_objects
-from athletic_scraper.webdriver.builder import WebDriverBuilder
+from core.podcasts import podcast_objects
+from core.webdriver.builder import WebDriverBuilder
 from .logger import get_logger
 
 LOGGER = get_logger()

@@ -1,4 +1,4 @@
-from athletic_scraper.models import Podcast
+from core.models import Podcast
 
 import sys
 import inspect

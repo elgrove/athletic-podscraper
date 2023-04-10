@@ -1,4 +1,4 @@
-from athletic_scraper import ScraperDirector
+from core import ScraperDirector
 
 # scrape the podcasts on a schedule
 # podcast object holds its schedule, link
