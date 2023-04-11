@@ -58,11 +58,25 @@ class PodcastScraper:
             self.driver.get(episode.file_url)
             if self.wait_for_mp3(self.driver):
                 LOGGER.info("Downloading episode %s", episode.name)
-                urllib.request.urlretrieve(
-                    url=self.driver.current_url,
-                    filename=f"/podcasts/{episode.date_published} {podcast.name} - {episode.name}",
-                )
-
+                file = f"/podcasts/{podcast.name}/{episode.date_published} {episode.name}.mp3"
+                if not os.path.exists(file):
+                    if not os.path.exists(f'/podcasts/{podcast.name}'):
+                        os.mkdir(f'/podcasts/{podcast.name}')
+                    urllib.request.urlretrieve(
+                        url=self.driver.current_url,
+                        filename=file,
+                    )
+                    from mutagen import File
+                    from mutagen.id3 import ID3, TDAT, TYER, TIT2
+                    mp3 = File(file)
+                    if mp3.tags is None:
+                        mp3.add_tags()
+                    tags = ID3()
+                    tags.add(TDAT(encoding=3, text='0404'))  # DDMM
+                    tags.add(TYER(encoding=3, text='2023')) # YYYY
+                    tags.add(TIT2(encoding=3, text='Chelsea and Leicester sackings, Man City humble Liverpool and race for top four'))
+                    mp3.tags = tags
+                    mp3.save()
 
 class ScraperDirector:
     def __init__(

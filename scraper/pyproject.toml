@@ -11,6 +11,7 @@ beautifulsoup4 = "^4.11.2"
 selenium = "^4.8.2"
 lxml = "^4.9.2"
 polling2 = "^0.5.0"
+mutagen = "^1.46.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.2.2"

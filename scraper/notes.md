@@ -1,0 +1,7 @@
+- [x] write files into folders of podcast name 
+- [x] check if file exists before downloading
+- [ ] write metadata to opf file (or ID3 tags?)
+- [ ] add run schedule
+- [ ] improve code
+- [ ] publish to ghcr
+- [ ] use as part of audiobookshelf stack
