@@ -1,4 +1,4 @@
-from core import ScraperDirector
+from core import ScraperCommand
 
 if __name__ == "__main__":
-    ScraperDirector().run()
+    ScraperCommand().run()

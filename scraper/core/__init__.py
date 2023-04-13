@@ -11,6 +11,11 @@ import urllib.request
 from core.podcasts import podcast_objects
 from core.webdriver.builder import WebDriverBuilder
 from .logger import get_logger
+from datetime import datetime
+
+from mutagen import File as mutagenFile
+from mutagen.id3 import ID3, TDAT, TYER, TIT2, TIT3
+
 
 LOGGER = get_logger()
 
@@ -18,67 +23,91 @@ EPISODES_TO_SCRAPE = 3
 
 
 class PodcastScraper:
-    def __init__(self, podcast: Podcast, webdriver):
+    def __init__(self, podcast: Podcast, webdriver, parser=BeautifulSoup):
         self.podcast = podcast
         self.driver = webdriver
+        self.driver.get(podcast.url)
+        self.soup = parser(self.driver.page_source.encode("utf-8"), "lxml")
 
-    def scrape_episodes_json(self, soup):
+    def _make_podcast_directory(self):
+        dir = f"/podcasts/{self.podcast.name}"
+        if not os.path.exists(dir):
+            os.mkdir(dir)
+
+    def _scrape_podcast_json(self):
+        pass
+
+    def _scrape_podcast_image(self):
+        pass
+
+    def _scrape_episodes_json(self):
         jsons = [
             json.loads(s.string)
-            for s in soup.find_all("script", {"type": "application/ld+json"})
+            for s in self.soup.find_all("script", {"type": "application/ld+json"})
             if json.loads(s.string)["@type"] == "PodcastEpisode"
         ]
         return jsons
 
-    def generate_episodes(self, jsons):
+    def _generate_episodes(self, jsons):
         episodes = [
             PodcastEpisode(
-                name=j["name"],
-                date_published=j["datePublished"],
+                title=j["name"],
+                date_published=datetime.fromisoformat(j["datePublished"]),
                 description=j["description"],
                 file_url=j["associatedMedia"]["contentUrl"],
             )
             for j in jsons
         ][:EPISODES_TO_SCRAPE]
-        for name in [ep.name for ep in episodes]:
-            LOGGER.debug("Generated episode %s", name)
+        for title in [ep.title for ep in episodes]:
+            LOGGER.debug("Generated episode %s", title)
         return episodes
 
     @poll_decorator(step=1, timeout=30)
-    def wait_for_mp3(self, driver):
-        return ".mp3" in driver.current_url
+    def _mp3_available(self):
+        return ".mp3" in self.driver.current_url
 
-    def scrape_episodes(self, podcast):
-        self.driver.get(podcast.url)
-        soup = BeautifulSoup(self.driver.page_source.encode("utf-8"), "lxml")
-        jsons = self.scrape_episodes_json(soup)
-        episodes = self.generate_episodes(jsons)
+    def _navigate_to_mp3(self, episode):
+        self.driver.get(episode.file_url)
+        if self._mp3_available():
+            return
+
+    def _get_mp3_filepath(self, episode):
+        return f"/podcasts/{self.podcast.name}/{episode.date_published.isoformat()[:10]} {episode.title}.mp3"
+
+    def _download_mp3(self, episode):
+        self._navigate_to_mp3(episode)
+        urllib.request.urlretrieve(
+            url=self.driver.current_url,
+            filename=self._get_mp3_filepath(episode),
+        )
+
+    def _tag_mp3(self, episode):
+        mp3 = mutagenFile(self._get_mp3_filepath(episode))
+        if mp3.tags is None:
+            mp3.add_tags()
+        tags = ID3()
+        tags.add(TDAT(encoding=3, text=episode.date_published.strftime("%d%m")))
+        tags.add(TYER(encoding=3, text=str(episode.date_published.year)))
+        tags.add(
+            TIT2(
+                encoding=3,
+                text=episode.title,
+            )
+        )
+        tags.add(TIT3(encoding=3, text=episode.description))
+        mp3.tags = tags
+        mp3.save()
+
+    def scrape(self):
+        self._make_podcast_directory()
+        self._scrape_podcast_image()
+        episodes = self._generate_episodes(self._scrape_episodes_json())
         for episode in episodes:
-            LOGGER.debug("Navigating to episode %s", episode.name)
-            self.driver.get(episode.file_url)
-            if self.wait_for_mp3(self.driver):
-                LOGGER.info("Downloading episode %s", episode.name)
-                file = f"/podcasts/{podcast.name}/{episode.date_published} {episode.name}.mp3"
-                if not os.path.exists(file):
-                    if not os.path.exists(f'/podcasts/{podcast.name}'):
-                        os.mkdir(f'/podcasts/{podcast.name}')
-                    urllib.request.urlretrieve(
-                        url=self.driver.current_url,
-                        filename=file,
-                    )
-                    from mutagen import File
-                    from mutagen.id3 import ID3, TDAT, TYER, TIT2
-                    mp3 = File(file)
-                    if mp3.tags is None:
-                        mp3.add_tags()
-                    tags = ID3()
-                    tags.add(TDAT(encoding=3, text='0404'))  # DDMM
-                    tags.add(TYER(encoding=3, text='2023')) # YYYY
-                    tags.add(TIT2(encoding=3, text='Chelsea and Leicester sackings, Man City humble Liverpool and race for top four'))
-                    mp3.tags = tags
-                    mp3.save()
+            self._download_mp3(episode)
+            self._tag_mp3(episode)
 
-class ScraperDirector:
+
+class ScraperCommand:
     def __init__(
         self,
         podcasts=podcast_objects,
@@ -106,5 +135,5 @@ class ScraperDirector:
         for podcast in self.podcasts:
             LOGGER.info("Scraping podcast %s", podcast.name)
             scraper = self.scraper(podcast, driver)
-            scraper.scrape_episodes(podcast)
+            scraper.scrape()
         driver.quit()

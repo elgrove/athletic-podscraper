@@ -10,7 +10,7 @@ class Podcast:
 
 @dataclass
 class PodcastEpisode:
-    name: str
-    date_published: str  # TODO datetime
+    title: str
+    date_published: datetime
     description: str
     file_url: str
