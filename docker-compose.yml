@@ -19,10 +19,26 @@ services:
       timeout: 60s
     image: 'selenium/standalone-firefox:4.8.1-20230306'
   scraper:
-    restart: unless-stopped
+#    restart: unless-stopped
     build: ./scraper
     env_file:
       - secrets.env
+    environment:
+      - SCRAPE_INTERVAL_HR=2
+      - LAST_N_PODCASTS:3
+      - TOTALLY=1
+      - TOTALLY_EURO=0
+      - TIFO=1
+      - ATHLETIC=0
+      - CLICHES=0
+      - TACTICS=0
+      - TOTTENHAM=1
+      - CHELSEA=0
+      - LEEDS=0
+      - LIVERPOOL=0
+      - MANCITY=0
+      - MANUNITED=0
+      - NEWCASTLE=0
     volumes:
       - ./scraper:/usr/src/app
       - ./podcasts:/podcasts

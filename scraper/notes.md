@@ -1,8 +1,10 @@
 - [x] write files into folders of podcast name 
 - [x] check if file exists before downloading
 - [x] write metadata to opf file (or ID3 tags?)
-- [ ] pull image from first json in page (image code and folder creation code should live with podcast obj)
-- [ ] add run schedule
-- [ ] improve code
+- [x] pull image from first json in page (image code and folder creation code should live with podcast obj)
+- [x] get podcast names from env vars
+- [x] docstrings
+- [x] add run schedule
+- [x] improve code
 - [ ] publish to ghcr
 - [ ] use as part of audiobookshelf stack

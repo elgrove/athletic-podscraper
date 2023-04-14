@@ -5,6 +5,10 @@ description = ""
 authors = ["Aaron <aaron@aaron.com>"]
 readme = "README.md"
 
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
 [tool.poetry.dependencies]
 python = "~3.9"
 beautifulsoup4 = "^4.11.2"
@@ -12,14 +16,13 @@ selenium = "^4.8.2"
 lxml = "^4.9.2"
 polling2 = "^0.5.0"
 mutagen = "^1.46.0"
+pillow = "^9.5.0"
+schedule = "^1.2.0"
+pylint = "^2.17.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.2.2"
 black = "^23.3.0"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
 addopts = [
@@ -27,4 +30,16 @@ addopts = [
 ]
 pythonpath = [
   "."
+]
+
+[tool.pylint.options]
+ignore = [".venv", "pyproject.toml"]
+
+[tool.pylint.messages_control]
+max-line-length = 120
+disable = [
+    "missing-module-docstring",
+    "too-few-public-methods",
+    "invalid-name",
+    "fixme",
 ]

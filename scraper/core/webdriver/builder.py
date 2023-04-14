@@ -1,5 +1,5 @@
-import os
 from functools import cached_property
+import os
 
 from selenium import webdriver
 
@@ -16,6 +16,7 @@ class WebDriverBuilder:
 
     @cached_property
     def extensions_dir(self):
+        """Return the extensons directory on the host system as relative to this file."""
         return os.path.abspath(f"{os.path.dirname(__file__)}/extensions")
 
     @property
