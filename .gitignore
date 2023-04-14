@@ -3,7 +3,7 @@
 database/
 podcasts/
 secrets.env
-
+log.txt
 
 
 # Byte-compiled / optimized / DLL files
