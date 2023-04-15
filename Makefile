@@ -1,22 +1,18 @@
-clean:
-	sudo rm -rf podcasts/*
-
-build:
-	sudo docker compose up --build
-
-up:
-	sudo docker compose up
-
-upd:
-	sudo docker compose up -d
-
-SERVICES := scraper
-
 test:
-	$(foreach service,$(SERVICES),cd $(service) && poetry run pytest test_dir;)
+	poetry run pytest tests
 
 format:
-	$(foreach service,$(SERVICES),cd $(service) && poetry run black .; cd ..;)
+	poetry run black .
 
 lint:
-	$(foreach service,$(SERVICES),cd $(service) && poetry run pylint --recursive=y .; cd ..;)
+	poetry run pylint --recursive .
+
+PACKAGE_VERSION := $(shell poetry version --no-ansi | cut -d " " -f 2)
+IMAGE_NAME := athletic_podscraper
+
+
+build:
+	docker build -t $(IMAGE_NAME):$(PACKAGE_VERSION) .
+
+publish
+	docker push ghcr.io/elgrove/$(IMAGE_NAME):$(PACKAGE_VERSION)
