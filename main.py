@@ -10,7 +10,7 @@ def main():
     """Entry point for the scraper container. Runs on startup then every n hours as defined by an env var."""
     scraper = ScraperCommand()
     scraper.run()
-    schedule.every(os.environ["SCRAPE_INTERVAL_HR"]).hours.do(scraper.run)
+    schedule.every(int(os.environ["SCRAPE_INTERVAL_HR"])).hours.do(scraper.run)
     while True:
         schedule.run_pending()
         sleep(1)
