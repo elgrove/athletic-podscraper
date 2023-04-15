@@ -40,7 +40,7 @@ services:
       - MANUNITED=0
       - NEWCASTLE=0
     volumes:
-      - ./scraper:/usr/src/app
+      - ./:/usr/src/app
       - ./podcasts:/podcasts
     depends_on:
       webdriver:
