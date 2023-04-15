@@ -63,14 +63,17 @@ class PodcastScraper:
         image_url = self._scrape_podcast_json()["image"]
         image_ext = image_url.split(".")[-1]
         image_filepath = f"/podcasts/{self.podcast.name}/Cover."
-        self._add_urllib_headers()
-        urllib.request.urlretrieve(url=image_url, filename=image_filepath + image_ext)
-        os.chmod(image_filepath + image_ext, 0o777)
-        if image_ext == "png":
-            png = Image.open(image_filepath + "png")
-            jpg = png.convert("RGB")
-            jpg.save(image_filepath + "jpg")
-            os.chmod(image_filepath + "jpg", 0o777)
+        if not os.path.exists(image_filepath + image_ext):
+            self._add_urllib_headers()
+            urllib.request.urlretrieve(
+                url=image_url, filename=image_filepath + image_ext
+            )
+            os.chmod(image_filepath + image_ext, 0o777)
+            if image_ext == "png":
+                png = Image.open(image_filepath + "png")
+                jpg = png.convert("RGB")
+                jpg.save(image_filepath + "jpg")
+                os.chmod(image_filepath + "jpg", 0o777)
 
     def _scrape_episodes_json(self):
         """Scrape json from The Athletic with information about each episode."""

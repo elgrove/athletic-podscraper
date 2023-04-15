@@ -4,6 +4,7 @@ database/
 podcasts/
 secrets.env
 log.txt
+notes.md
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
