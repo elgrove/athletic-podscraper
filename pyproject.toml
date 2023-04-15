@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "athletic_podscraper"
-version = "1.0.2"
+version = "1.0.4"
 description = ""
 authors = ["Aaron <aaron@aaron.com>"]
 readme = "README.md"
