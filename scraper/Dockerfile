@@ -24,4 +24,7 @@ RUN poetry install --no-interaction --no-cache --without dev
 
 COPY . .
 
+RUN mkdir /podcasts
+RUN chmod 777 /podcasts
+
 CMD ["poetry", "run", "python", "main.py"]

@@ -25,7 +25,7 @@ services:
       - secrets.env
     environment:
       - SCRAPE_INTERVAL_HR=2
-      - LAST_N_PODCASTS:3
+      - LAST_N_PODCASTS=3
       - TOTALLY=1
       - TOTALLY_EURO=0
       - TIFO=1

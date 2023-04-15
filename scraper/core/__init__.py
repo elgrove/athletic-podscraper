@@ -23,7 +23,7 @@ LOGGER = get_logger()
 class PodcastScraper:
     """Scrape a podcast from The Athletic into the docker mounted podcasts directory."""
 
-    EPISODES_TO_SCRAPE = os.environ["LAST_N_PODCASTS"]
+    EPISODES_TO_SCRAPE = int(os.environ["LAST_N_PODCASTS"])
 
     def __init__(self, podcast: PodcastSeries, webdriver, parser=BeautifulSoup):
         """Init with the Podcast object to scrape, a webdriver and parser."""
@@ -65,10 +65,12 @@ class PodcastScraper:
         image_filepath = f"/podcasts/{self.podcast.name}/Cover."
         self._add_urllib_headers()
         urllib.request.urlretrieve(url=image_url, filename=image_filepath + image_ext)
+        os.chmod(image_filepath + image_ext, 0o777)
         if image_ext == "png":
             png = Image.open(image_filepath + "png")
             jpg = png.convert("RGB")
             jpg.save(image_filepath + "jpg")
+            os.chmod(image_filepath + "jpg", 0o777)
 
     def _scrape_episodes_json(self):
         """Scrape json from The Athletic with information about each episode."""
@@ -118,6 +120,7 @@ class PodcastScraper:
                 url=self.driver.current_url,
                 filename=filepath,
             )
+            os.chmod(filepath, 0o777)
 
     def _tag_mp3(self, episode):
         """Write ID3 tags to the episode mp3 file with metadata."""
