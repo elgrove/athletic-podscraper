@@ -111,17 +111,6 @@ class PodcastScraper:
         """Produce a filepath for a podcast episode to be downloaded into."""
         return f"/podcasts/{self.podcast.name}/{episode.date_published.isoformat()[:10]} {episode.title}.mp3"
 
-    def _download_mp3(self, episode):
-        """Download the mp3 file of a podcast episode."""
-        filepath = self._get_mp3_filepath(episode)
-        if not os.path.exists(filepath):
-            self._navigate_to_mp3(episode)
-            urllib.request.urlretrieve(
-                url=self.driver.current_url,
-                filename=filepath,
-            )
-            os.chmod(filepath, 0o777)
-
     def _tag_mp3(self, episode):
         """Write ID3 tags to the episode mp3 file with metadata."""
         mp3 = mutagenFile(self._get_mp3_filepath(episode))
@@ -140,6 +129,18 @@ class PodcastScraper:
         mp3.tags = tags
         mp3.save()
 
+    def _download_mp3(self, episode):
+        """Download the mp3 file of a podcast episode."""
+        filepath = self._get_mp3_filepath(episode)
+        if not os.path.exists(filepath):
+            self._navigate_to_mp3(episode)
+            urllib.request.urlretrieve(
+                url=self.driver.current_url,
+                filename=filepath,
+            )
+            os.chmod(filepath, 0o777)
+            self._tag_mp3(episode)
+
     def scrape(self):
         """Scrape a podcast from The Athletic, creating a directory and download an image if needed."""
         self._make_podcast_directory()
@@ -147,7 +148,6 @@ class PodcastScraper:
         episodes = self._generate_episodes(self._scrape_episodes_json())
         for episode in episodes:
             self._download_mp3(episode)
-            self._tag_mp3(episode)
 
 
 class ScraperCommand:
