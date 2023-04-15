@@ -96,7 +96,7 @@ class PodcastScraper:
             LOGGER.debug("Generated episode %s", title)
         return episodes
 
-    @poll_decorator(step=1, timeout=30)
+    @poll_decorator(step=1, timeout=600)
     def _mp3_available(self):
         """Wait for an episode file to load in the browser before attempting to download it."""
         return ".mp3" in self.driver.current_url
