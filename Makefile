@@ -14,6 +14,9 @@ LAST_COMMIT_TYPE := $(shell git log --format=%B -n 1 HEAD^1 | awk 'NR==1{sub(/:.
 bump:
 	poetry run bump2version ${LAST_COMMIT_TYPE}
 
+bump_force:
+	poetry run bump2version patch
+
 push:
 	git push origin main
 
