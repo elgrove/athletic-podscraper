@@ -19,8 +19,8 @@ services:
       timeout: 60s
     image: 'selenium/standalone-firefox:4.8.1-20230306'
   scraper:
-#    restart: unless-stopped
-    build: ./
+    restart: unless-stopped
+    image: ghcr.io/elgrove/athletic_podscraper:latest
     env_file:
       - secrets.env
     environment:
@@ -41,7 +41,6 @@ services:
       - MANUNITED=0
       - NEWCASTLE=0
     volumes:
-      - ./:/usr/src/app
       - ./podcasts:/podcasts
     depends_on:
       webdriver:

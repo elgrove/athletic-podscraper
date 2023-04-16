@@ -4,15 +4,9 @@ Scrape ad-free podcasts from The Athletic's website to use in your podcast playe
 
 ## How to use
 
-This app has one prerequisite: docker.
+This app has one prerequisite: docker. Use the docker compose file provided to create the scraping service.
 
-* Clone this repo
-* In the project root, add a `secrets.env` file like below
-* In `docker-compose.yml`, edit the environment variables to flag which podcasts you want to scrape
-* Run `make upd`
-* The podcasts will be downloaded into a `podcasts` directory in the project root
-
-### Example secrets.env file
+A `secrets.env` file is required in the project root to log in to The Athletic, in the format as follows:
 
 ```
 LOGIN_EMAIL="harry.kane@tottenhamhotspur.com"
