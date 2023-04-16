@@ -10,11 +10,14 @@ lint:
 PACKAGE_VERSION := $(shell poetry version --no-ansi | cut -d " " -f 2)
 IMAGE_NAME := athletic_podscraper
 
+bump:
+    poetry run bumpversion $(shell git log --format=%B -n 1 HEAD^1 | awk 'NR==1{sub(/:.*/, ""); print}')
+
 push:
 	git push origin main
 
 build:
 	docker build -t ghcr.io/elgrove/$(IMAGE_NAME):$(PACKAGE_VERSION) .
 
-publish: push build
+publish: bump push build
 	docker push ghcr.io/elgrove/$(IMAGE_NAME):$(PACKAGE_VERSION)
