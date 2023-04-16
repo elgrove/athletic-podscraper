@@ -9,9 +9,10 @@ lint:
 
 PACKAGE_VERSION := $(shell poetry version --no-ansi | cut -d " " -f 2)
 IMAGE_NAME := athletic_podscraper
+LAST_COMMIT_TYPE := $(shell git log --format=%B -n 1 HEAD^1 | awk 'NR==1{sub(/:.*/, ""); print}')
 
 bump:
-	poetry run bump2version $(shell git log --format=%B -n 1 HEAD^1 | awk 'NR==1{sub(/:.*/, ""); print}')
+	poetry run bump2version ${LAST_COMMIT_TYPE}
 
 push:
 	git push origin main
