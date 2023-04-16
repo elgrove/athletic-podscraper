@@ -24,6 +24,7 @@ services:
     env_file:
       - secrets.env
     environment:
+      - LOG_LEVEL=INFO
       - SCRAPE_INTERVAL_HR=2
       - LAST_N_PODCASTS=3
       - TOTALLY=1

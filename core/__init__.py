@@ -36,6 +36,7 @@ class PodcastScraper:
         """Create a directory for the podcast series in the docker mounted dir."""
         podcast_dir = f"/podcasts/{self.podcast.name}"
         if not os.path.exists(podcast_dir):
+            LOGGER.debug("Making directory for podcast series %s", self.podcast.name)
             os.mkdir(podcast_dir)
 
     def _scrape_podcast_json(self):
@@ -64,6 +65,7 @@ class PodcastScraper:
         image_ext = image_url.split(".")[-1]
         image_filepath = f"/podcasts/{self.podcast.name}/Cover."
         if not os.path.exists(image_filepath + image_ext):
+            LOGGER.debug("Downloading image for podcast %s", self.podcast.name)
             self._add_urllib_headers()
             urllib.request.urlretrieve(
                 url=image_url, filename=image_filepath + image_ext
@@ -96,7 +98,7 @@ class PodcastScraper:
             for j in jsons
         ][: self.EPISODES_TO_SCRAPE]
         for title in [ep.title for ep in episodes]:
-            LOGGER.debug("Generated episode %s", title)
+            LOGGER.debug("Generated episode object for episode %s", title)
         return episodes
 
     @poll_decorator(step=1, timeout=600)
@@ -106,6 +108,7 @@ class PodcastScraper:
 
     def _navigate_to_mp3(self, episode):
         """Navigate the webdriver browser to a podcast episode file, and wait for it to load."""
+        LOGGER.debug("Navigating to MP3 for episode %s", episode.title)
         self.driver.get(episode.file_url)
         if self._mp3_available():
             return
@@ -116,6 +119,7 @@ class PodcastScraper:
 
     def _tag_mp3(self, episode):
         """Write ID3 tags to the episode mp3 file with metadata."""
+        LOGGER.debug("Tagging MP3 for episode %s", episode.title)
         mp3 = mutagenFile(self._get_mp3_filepath(episode))
         if mp3.tags is None:
             mp3.add_tags()
@@ -134,6 +138,7 @@ class PodcastScraper:
 
     def _download_mp3(self, episode):
         """Download the mp3 file of a podcast episode."""
+        LOGGER.info("Downloading MP3 for episode %s", episode.title)
         filepath = self._get_mp3_filepath(episode)
         if not os.path.exists(filepath):
             self._navigate_to_mp3(episode)
@@ -169,6 +174,7 @@ class ScraperCommand:
 
     def _login_to_the_athletic(self, driver):
         """Log in to The Athletic website using credentials from env vars."""
+        LOGGER.debug("Logging into The Athletic")
         driver.get("https://theathletic.com/login2")
         email_field = driver.find_element(By.NAME, "email")
         password_field = driver.find_element(By.NAME, "password")
@@ -179,12 +185,10 @@ class ScraperCommand:
 
     def run(self):
         """Create a webdriver, log into The Athletic and scrape podcasts as flagged by env vars."""
-        LOGGER.debug("Creating webdriver")
         driver = self.driver_builder().get_driver()
-        LOGGER.debug("Logging into The Athletic")
         self._login_to_the_athletic(driver)
         for podcast in self.podcasts:
-            LOGGER.info("Scraping podcast %s", podcast.name)
+            LOGGER.info("Working on podcast %s", podcast.name)
             scraper = self.scraper(podcast, driver)
             scraper.scrape()
         driver.quit()
