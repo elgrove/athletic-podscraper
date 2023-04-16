@@ -10,6 +10,7 @@ from mutagen.id3 import ID3, TDAT, TYER, TIT2, TIT3
 from polling2 import poll_decorator
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import NoSuchElementException
 from PIL import Image
 
 from core.models import PodcastSeries, PodcastEpisode
@@ -29,8 +30,34 @@ class PodcastScraper:
         """Init with the Podcast object to scrape, a webdriver and parser."""
         self.podcast = podcast
         self.driver = webdriver
+        self._login_to_the_athletic(self.driver)
         self.driver.get(podcast.url)
         self.soup = parser(self.driver.page_source.encode("utf-8"), "lxml")
+
+    @poll_decorator(step=1, timeout=30)
+    def _is_logged_in_to_the_athletic(self, driver):
+        try:
+            _ = driver.find_element(By.ID, "header-login-button")
+            return False
+        except NoSuchElementException:
+            return True
+
+    def _login_to_the_athletic(self, driver):
+        """Log in to The Athletic website using credentials from env vars."""
+        LOGGER.debug("Checking logged-in to The Athletic")
+        login_url = "https://theathletic.com/login2"
+        driver.get(login_url)
+        if all([driver.current_url != login_url, "redirected" in driver.current_url]):
+            return
+        LOGGER.debug("Logging into The Athletic")
+        email_field = driver.find_element(By.NAME, "email")
+        password_field = driver.find_element(By.NAME, "password")
+        email_field.send_keys(os.environ["LOGIN_EMAIL"])
+        password_field.send_keys(os.environ["LOGIN_PASS"])
+        password_field.send_keys(Keys.RETURN)
+        sleep(5)
+        if self._is_logged_in_to_the_athletic(driver):
+            return
 
     def _make_podcast_directory(self):
         """Create a directory for the podcast series in the docker mounted dir."""
@@ -88,6 +115,7 @@ class PodcastScraper:
 
     def _generate_episodes(self, jsons):
         """Generate PodcastEpisode objects from the json scraped from The Athletic"""
+        LOGGER.debug("Generating episodes for podcast %s", self.podcast.name)
         episodes = [
             PodcastEpisode(
                 title=j["name"],
@@ -97,8 +125,6 @@ class PodcastScraper:
             )
             for j in jsons
         ][: self.EPISODES_TO_SCRAPE]
-        for title in [ep.title for ep in episodes]:
-            LOGGER.debug("Generated episode object for episode %s", title)
         return episodes
 
     @poll_decorator(step=1, timeout=600)
@@ -109,6 +135,9 @@ class PodcastScraper:
     def _navigate_to_mp3(self, episode):
         """Navigate the webdriver browser to a podcast episode file, and wait for it to load."""
         LOGGER.debug("Navigating to MP3 for episode %s", episode.title)
+        self.driver.get(self.podcast.url)
+        if not self._is_logged_in_to_the_athletic(self.driver):
+            self._login_to_the_athletic(self.driver)
         self.driver.get(episode.file_url)
         if self._mp3_available():
             return
@@ -138,16 +167,17 @@ class PodcastScraper:
 
     def _download_mp3(self, episode):
         """Download the mp3 file of a podcast episode."""
-        LOGGER.info("Downloading MP3 for episode %s", episode.title)
         filepath = self._get_mp3_filepath(episode)
         if not os.path.exists(filepath):
             self._navigate_to_mp3(episode)
+            LOGGER.info("Downloading MP3 for episode %s", episode.title)
             urllib.request.urlretrieve(
                 url=self.driver.current_url,
                 filename=filepath,
             )
             os.chmod(filepath, 0o777)
             self._tag_mp3(episode)
+            self.driver.get(self.podcast.url)
 
     def scrape(self):
         """Scrape a podcast from The Athletic, creating a directory and download an image if needed."""
@@ -172,21 +202,10 @@ class ScraperCommand:
         self.scraper = scraper
         self.driver_builder = driver_builder
 
-    def _login_to_the_athletic(self, driver):
-        """Log in to The Athletic website using credentials from env vars."""
-        LOGGER.debug("Logging into The Athletic")
-        driver.get("https://theathletic.com/login2")
-        email_field = driver.find_element(By.NAME, "email")
-        password_field = driver.find_element(By.NAME, "password")
-        email_field.send_keys(os.environ["LOGIN_EMAIL"])
-        password_field.send_keys(os.environ["LOGIN_PASS"])
-        password_field.send_keys(Keys.RETURN)
-        sleep(10)  # TODO poll instead
-
     def run(self):
         """Create a webdriver, log into The Athletic and scrape podcasts as flagged by env vars."""
+        LOGGER.debug("Creating webdriver")
         driver = self.driver_builder().get_driver()
-        self._login_to_the_athletic(driver)
         for podcast in self.podcasts:
             LOGGER.info("Working on podcast %s", podcast.name)
             scraper = self.scraper(podcast, driver)

@@ -3,10 +3,6 @@ import os
 
 from selenium import webdriver
 
-from core.logger import get_logger
-
-LOGGER = get_logger()
-
 
 class WebDriverBuilder:
     """Class for building Selenium webdriver instances."""
@@ -37,7 +33,6 @@ class WebDriverBuilder:
 
     def get_driver(self):
         """Returns a webdriver instance with extensions installed."""
-        LOGGER.debug("Creating webdriver")
         driver = webdriver.Remote(
             command_executor=f"{self.webdriver_host}:{self.webdriver_port}",
             options=self.firefox_options,
