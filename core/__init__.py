@@ -47,10 +47,7 @@ class PodcastScraper:
         login_url = "https://theathletic.com/login2"
         LOGGER.debug("Driver get %s", login_url)
         driver.get(login_url)
-        sleep(2)
-        if any([driver.current_url != login_url, "redirected" in driver.current_url]):
-            LOGGER.debug("User is already logged in, redirected to homepage")
-            return
+        sleep(6)
         LOGGER.debug("Logging into The Athletic")
         try:
             email_field = driver.find_element(By.NAME, "email")
@@ -58,13 +55,14 @@ class PodcastScraper:
             email_field.send_keys(os.environ["LOGIN_EMAIL"])
             password_field.send_keys(os.environ["LOGIN_PASS"])
             password_field.send_keys(Keys.RETURN)
-            sleep(5)
+            sleep(6)
+            driver.get("https://theathletic.com")
+            sleep(6)
             if self._is_logged_in_to_the_athletic(driver):
                 return
         except NoSuchElementException:
-            if any([driver.current_url != login_url, "redirected" in driver.current_url]):
-                LOGGER.debug("User is already logged in, redirected to homepage")
-                return
+            LOGGER.debug("User is already logged in, redirected to homepage")
+            return
 
     def _make_podcast_directory(self):
         """Create a directory for the podcast series in the docker mounted dir."""
@@ -221,4 +219,4 @@ class ScraperCommand:
             scraper.login_to_the_athletic(driver)
             scraper.scrape()
         driver.quit()
-        
+        2
