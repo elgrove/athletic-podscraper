@@ -30,12 +30,6 @@ class PodcastScraper:
         """Init with the Podcast object to scrape, a webdriver and parser."""
         self.podcast = podcast
         self.driver = webdriver
-        self.driver.get("https://theathletic.com")
-        sleep(2)
-        if not self._is_logged_in_to_the_athletic:
-            self._login_to_the_athletic(self.driver)
-        LOGGER.debug("Driver get %s", podcast.url)
-        self.driver.get(podcast.url)
         sleep(2)
         self.soup = parser(self.driver.page_source.encode("utf-8"), "lxml")
 
@@ -47,7 +41,7 @@ class PodcastScraper:
         except NoSuchElementException:
             return True
 
-    def _login_to_the_athletic(self, driver):
+    def login_to_the_athletic(self, driver):
         """Log in to The Athletic website using credentials from env vars."""
         LOGGER.debug("Checking logged-in to The Athletic")
         login_url = "https://theathletic.com/login2"
@@ -195,6 +189,7 @@ class PodcastScraper:
 
     def scrape(self):
         """Scrape a podcast from The Athletic, creating a directory and download an image if needed."""
+        self.driver.get(self.podcast.url)
         self._make_podcast_directory()
         self._download_podcast_image()
         episodes = self._generate_episodes(self._scrape_episodes_json())
@@ -220,6 +215,7 @@ class ScraperCommand:
         """Create a webdriver, log into The Athletic and scrape podcasts as flagged by env vars."""
         LOGGER.debug("Creating webdriver")
         driver = self.driver_builder().get_driver()
+        self.scraper.login_to_the_athletic(driver)
         for podcast in self.podcasts:
             LOGGER.info("Working on podcast %s", podcast.name)
             scraper = self.scraper(podcast, driver)
