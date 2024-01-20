@@ -30,24 +30,22 @@ class PodcastScraper:
         """Init with the Podcast object to scrape, a webdriver and parser."""
         self.podcast = podcast
         self.driver = webdriver
+        self.driver.get("https://theathletic.com")
+        sleep(2)
         if not self._is_logged_in_to_the_athletic:
             self._login_to_the_athletic(self.driver)
         LOGGER.debug("Driver get %s", podcast.url)
         self.driver.get(podcast.url)
+        sleep(2)
         self.soup = parser(self.driver.page_source.encode("utf-8"), "lxml")
 
     @poll_decorator(step=1, timeout=30)
     def _is_logged_in_to_the_athletic(self, driver):
-        back_url = driver.current_url
-        driver.get("https://theathletic.com")
-        sleep(1)
         try:
             _ = driver.find_element(By.ID, "header-login-button")
             return False
         except NoSuchElementException:
             return True
-        finally:
-            driver.get(back_url)
 
     def _login_to_the_athletic(self, driver):
         """Log in to The Athletic website using credentials from env vars."""
@@ -151,9 +149,9 @@ class PodcastScraper:
         """Navigate the webdriver browser to a podcast episode file, and wait for it to load."""
         LOGGER.debug("Navigating to MP3 for episode %s", episode.title)
         self.driver.get(self.podcast.url)
-        if not self._is_logged_in_to_the_athletic(self.driver):
-            self._login_to_the_athletic(self.driver)
+        sleep(2)
         self.driver.get(episode.file_url)
+        sleep(2)
         if self._mp3_available():
             return
 
@@ -193,6 +191,7 @@ class PodcastScraper:
             os.chmod(filepath, 0o777)
             self._tag_mp3(episode)
             self.driver.get(self.podcast.url)
+            sleep(2)
 
     def scrape(self):
         """Scrape a podcast from The Athletic, creating a directory and download an image if needed."""
