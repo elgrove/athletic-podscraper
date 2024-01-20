@@ -221,3 +221,4 @@ class ScraperCommand:
             scraper = self.scraper(podcast, driver)
             scraper.scrape()
         driver.quit()
+        
