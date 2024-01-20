@@ -23,7 +23,15 @@ push:
 	git push origin main
 
 build:
+ifeq ($(shell uname),Darwin)
 	docker build -t ghcr.io/elgrove/$(IMAGE_NAME):$(PACKAGE_VERSION) .
+else 
+	sudo docker build -t ghcr.io/elgrove/$(IMAGE_NAME):$(PACKAGE_VERSION) .
+endif
 
 publish: push build
+ifeq ($(shell uname),Darwin)
 	docker push ghcr.io/elgrove/$(IMAGE_NAME):$(PACKAGE_VERSION)
+else
+	sudo docker push ghcr.io/elgrove/$(IMAGE_NAME):$(PACKAGE_VERSION)
+endif

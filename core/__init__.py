@@ -32,33 +32,47 @@ class PodcastScraper:
         self.driver = webdriver
         if not self._is_logged_in_to_the_athletic:
             self._login_to_the_athletic(self.driver)
+        LOGGER.debug("Driver get %s", podcast.url)
         self.driver.get(podcast.url)
         self.soup = parser(self.driver.page_source.encode("utf-8"), "lxml")
 
     @poll_decorator(step=1, timeout=30)
     def _is_logged_in_to_the_athletic(self, driver):
+        back_url = driver.current_url
+        driver.get("https://theathletic.com")
+        sleep(1)
         try:
             _ = driver.find_element(By.ID, "header-login-button")
             return False
         except NoSuchElementException:
             return True
+        finally:
+            driver.get(back_url)
 
     def _login_to_the_athletic(self, driver):
         """Log in to The Athletic website using credentials from env vars."""
         LOGGER.debug("Checking logged-in to The Athletic")
         login_url = "https://theathletic.com/login2"
+        LOGGER.debug("Driver get %s", login_url)
         driver.get(login_url)
-        if all([driver.current_url != login_url, "redirected" in driver.current_url]):
+        sleep(2)
+        if any([driver.current_url != login_url, "redirected" in driver.current_url]):
+            LOGGER.debug("User is already logged in, redirected to homepage")
             return
         LOGGER.debug("Logging into The Athletic")
-        email_field = driver.find_element(By.NAME, "email")
-        password_field = driver.find_element(By.NAME, "password")
-        email_field.send_keys(os.environ["LOGIN_EMAIL"])
-        password_field.send_keys(os.environ["LOGIN_PASS"])
-        password_field.send_keys(Keys.RETURN)
-        sleep(5)
-        if self._is_logged_in_to_the_athletic(driver):
-            return
+        try:
+            email_field = driver.find_element(By.NAME, "email")
+            password_field = driver.find_element(By.NAME, "password")
+            email_field.send_keys(os.environ["LOGIN_EMAIL"])
+            password_field.send_keys(os.environ["LOGIN_PASS"])
+            password_field.send_keys(Keys.RETURN)
+            sleep(5)
+            if self._is_logged_in_to_the_athletic(driver):
+                return
+        except NoSuchElementException:
+            if any([driver.current_url != login_url, "redirected" in driver.current_url]):
+                LOGGER.debug("User is already logged in, redirected to homepage")
+                return
 
     def _make_podcast_directory(self):
         """Create a directory for the podcast series in the docker mounted dir."""
