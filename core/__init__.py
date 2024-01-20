@@ -30,9 +30,7 @@ class PodcastScraper:
         """Init with the Podcast object to scrape, a webdriver and parser."""
         self.podcast = podcast
         self.driver = webdriver
-        if not self._is_logged_in_to_the_athletic:
-            self._login_to_the_athletic(self.driver)
-        self.driver.get(podcast.url)
+        sleep(2)
         self.soup = parser(self.driver.page_source.encode("utf-8"), "lxml")
 
     @poll_decorator(step=1, timeout=30)
@@ -43,21 +41,27 @@ class PodcastScraper:
         except NoSuchElementException:
             return True
 
-    def _login_to_the_athletic(self, driver):
+    def login_to_the_athletic(self, driver):
         """Log in to The Athletic website using credentials from env vars."""
         LOGGER.debug("Checking logged-in to The Athletic")
         login_url = "https://theathletic.com/login2"
+        LOGGER.debug("Driver get %s", login_url)
         driver.get(login_url)
-        if all([driver.current_url != login_url, "redirected" in driver.current_url]):
-            return
+        sleep(6)
         LOGGER.debug("Logging into The Athletic")
-        email_field = driver.find_element(By.NAME, "email")
-        password_field = driver.find_element(By.NAME, "password")
-        email_field.send_keys(os.environ["LOGIN_EMAIL"])
-        password_field.send_keys(os.environ["LOGIN_PASS"])
-        password_field.send_keys(Keys.RETURN)
-        sleep(5)
-        if self._is_logged_in_to_the_athletic(driver):
+        try:
+            email_field = driver.find_element(By.NAME, "email")
+            password_field = driver.find_element(By.NAME, "password")
+            email_field.send_keys(os.environ["LOGIN_EMAIL"])
+            password_field.send_keys(os.environ["LOGIN_PASS"])
+            password_field.send_keys(Keys.RETURN)
+            sleep(6)
+            driver.get("https://theathletic.com")
+            sleep(6)
+            if self._is_logged_in_to_the_athletic(driver):
+                return
+        except NoSuchElementException:
+            LOGGER.debug("User is already logged in, redirected to homepage")
             return
 
     def _make_podcast_directory(self):
@@ -137,9 +141,9 @@ class PodcastScraper:
         """Navigate the webdriver browser to a podcast episode file, and wait for it to load."""
         LOGGER.debug("Navigating to MP3 for episode %s", episode.title)
         self.driver.get(self.podcast.url)
-        if not self._is_logged_in_to_the_athletic(self.driver):
-            self._login_to_the_athletic(self.driver)
+        sleep(2)
         self.driver.get(episode.file_url)
+        sleep(2)
         if self._mp3_available():
             return
 
@@ -179,9 +183,12 @@ class PodcastScraper:
             os.chmod(filepath, 0o777)
             self._tag_mp3(episode)
             self.driver.get(self.podcast.url)
+            sleep(2)
 
     def scrape(self):
         """Scrape a podcast from The Athletic, creating a directory and download an image if needed."""
+        self.driver.get(self.podcast.url)
+        sleep(6)
         self._make_podcast_directory()
         self._download_podcast_image()
         episodes = self._generate_episodes(self._scrape_episodes_json())
@@ -210,5 +217,7 @@ class ScraperCommand:
         for podcast in self.podcasts:
             LOGGER.info("Working on podcast %s", podcast.name)
             scraper = self.scraper(podcast, driver)
+            scraper.login_to_the_athletic(driver)
             scraper.scrape()
         driver.quit()
+        2
