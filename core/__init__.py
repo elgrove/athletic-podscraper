@@ -30,7 +30,8 @@ class PodcastScraper:
         """Init with the Podcast object to scrape, a webdriver and parser."""
         self.podcast = podcast
         self.driver = webdriver
-        self._login_to_the_athletic(self.driver)
+        if not self._is_logged_in_to_the_athletic:
+            self._login_to_the_athletic(self.driver)
         self.driver.get(podcast.url)
         self.soup = parser(self.driver.page_source.encode("utf-8"), "lxml")
 
