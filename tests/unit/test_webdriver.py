@@ -15,7 +15,7 @@ class TestWebDriverBuilder:
         if os.uname().sysname == "Darwin":
             assert (
                 builder.extensions_dir
-                == "/Users/aaron/dev/athletic/scraper/athletic_scraper/webdriver/extensions"
+                == "/Users/aaron/dev/athletic_podscraper/core/webdriver/extensions"
             )
 
     def test_extensions(self):
