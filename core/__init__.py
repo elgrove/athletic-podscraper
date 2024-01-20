@@ -188,6 +188,7 @@ class PodcastScraper:
     def scrape(self):
         """Scrape a podcast from The Athletic, creating a directory and download an image if needed."""
         self.driver.get(self.podcast.url)
+        sleep(6)
         self._make_podcast_directory()
         self._download_podcast_image()
         episodes = self._generate_episodes(self._scrape_episodes_json())
