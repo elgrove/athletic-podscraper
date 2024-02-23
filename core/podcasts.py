@@ -16,6 +16,7 @@ podcast_env_map = {
     "MANCITY": "Why Always Us?",
     "MANUNITED": "Talk of the Devils",
     "NEWCASTLE": "Pod on the Tyne",
+    "GOLAZZO": "Golazzo: The Totally Italian Football Show",
 }
 
 
@@ -33,6 +34,7 @@ podcasts = {
     "Why Always Us?": "https://theathletic.com/podcast/159-why-always-us/",
     "Talk of the Devils": "https://theathletic.com/podcast/162-talk-of-the-devils/",
     "Pod on the Tyne": "https://theathletic.com/podcast/147-pod-on-the-tyne/",
+    "Golazzo: The Totally Italian Football Show": "https://theathletic.com/podcast/290-golazzo-the-totally-italian-football-show/",
 }
 
 env_vars = list(podcast_env_map.keys())
