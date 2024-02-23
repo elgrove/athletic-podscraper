@@ -1,23 +1,22 @@
-from functools import cached_property
+from datetime import datetime
+import json
+import os
+from time import sleep
+import urllib
+
 from PIL import Image
 from bs4 import BeautifulSoup
-from mutagen import File as mutagenFile
-from mutagen.id3 import ID3, TDAT, TIT2, TIT3, TYER
-from datetime import datetime
-from time import sleep
 from core.logger import get_logger
 from core.models import PodcastEpisode, PodcastSeries
 from core.podcasts import podcast_objects
 from core.webdriver.builder import WebDriverBuilder
-import os
+from mutagen import File as mutagenFile
+from mutagen.id3 import ID3, TDAT, TIT2, TIT3, TYER
 from polling2 import poll_decorator
-from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-import json
-import urllib
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
 LOGGER = get_logger()
 
@@ -35,6 +34,7 @@ class PodcastScraper:
 
     @property
     def podcast_page_soup(self):
+        """Returns a BeautifulSoup instance of the podcast page."""
         if not self.driver.current_url == self.podcast.url:
             self._navigate_to_podcast()
         soup = self.parser(self.driver.page_source.encode("utf-8"), "lxml")
@@ -93,7 +93,8 @@ class PodcastScraper:
         return jsons[0]
 
     def _add_urllib_headers(self):
-        """Add headers to urllib to circumvent download prevention from The Athletic cdn."""
+        """Add headers to urllib to circumvent download prevention from The Athletic
+        cdn."""
         opener = urllib.request.build_opener()
         opener.addheaders = [
             (
@@ -104,7 +105,8 @@ class PodcastScraper:
         urllib.request.install_opener(opener)
 
     def _download_podcast_image(self):
-        """Download the podcast image to the podcasts directory, and convert it to jpg."""
+        """Download the podcast image to the podcasts directory, and convert it to
+        jpg."""
         image_url = self._scrape_podcast_json()["image"]
         image_ext = image_url.split(".")[-1]
         image_filepath = f"podcasts/{self.podcast.name}/Cover."
@@ -133,7 +135,7 @@ class PodcastScraper:
         return jsons
 
     def _generate_episodes(self, jsons):
-        """Generate PodcastEpisode objects from the json scraped from The Athletic"""
+        """Generate PodcastEpisode objects from the json scraped from The Athletic."""
         LOGGER.debug("Generating episodes for podcast %s", self.podcast.name)
         episodes = [
             PodcastEpisode(
@@ -148,11 +150,13 @@ class PodcastScraper:
 
     @poll_decorator(step=1, timeout=600)
     def _mp3_available(self):
-        """Wait for an episode file to load in the browser before attempting to download it."""
+        """Wait for an episode file to load in the browser before attempting to download
+        it."""
         return ".mp3" in self.driver.current_url
 
     def _navigate_to_mp3(self, episode):
-        """Navigate the webdriver browser to a podcast episode file, and wait for it to load."""
+        """Navigate the webdriver browser to a podcast episode file, and wait for it to
+        load."""
         LOGGER.debug("Navigating to MP3 for episode %s", episode.title)
         self.driver.get(self.podcast.url)
         sleep(2)
@@ -199,7 +203,8 @@ class PodcastScraper:
             self._navigate_to_podcast()
 
     def scrape(self):
-        """Scrape a podcast from The Athletic, creating a directory and download an image if needed."""
+        """Scrape a podcast from The Athletic, creating a directory and download an
+        image if needed."""
         self._make_podcast_directory()
         self._navigate_to_podcast()
         if not self._is_logged_in_to_the_athletic():
@@ -213,7 +218,8 @@ class PodcastScraper:
 
 
 class ScraperCommand:
-    """Command class for orchestrating the scraping of a given list of PodcastSeries objects."""
+    """Command class for orchestrating the scraping of a given list of PodcastSeries
+    objects."""
 
     def __init__(
         self,
@@ -221,13 +227,15 @@ class ScraperCommand:
         scraper=PodcastScraper,
         driver_builder=WebDriverBuilder,
     ):
-        """Init with PodcastSeries objects, the scraper class and a webdriver builder class."""
+        """Init with PodcastSeries objects, the scraper class and a webdriver builder
+        class."""
         self.podcasts = podcasts
         self.scraper = scraper
         self.driver_builder = driver_builder
 
     def run(self):
-        """Create a webdriver, log into The Athletic and scrape podcasts as flagged by env vars."""
+        """Create a webdriver, log into The Athletic and scrape podcasts as flagged by
+        env vars."""
         LOGGER.debug("Creating webdriver")
         driver = self.driver_builder().get_driver()
         for podcast in self.podcasts:

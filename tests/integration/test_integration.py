@@ -1,8 +1,7 @@
-import pytest
 from core.models import PodcastSeries
 from core.scraper import PodcastScraper
-
 from core.webdriver.builder import WebDriverBuilder
+import pytest
 
 
 @pytest.fixture(autouse=True)

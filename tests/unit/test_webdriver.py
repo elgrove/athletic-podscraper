@@ -1,8 +1,7 @@
 import os
 
-import pytest
-
 from core.webdriver.builder import WebDriverBuilder
+import pytest
 
 
 @pytest.mark.unit

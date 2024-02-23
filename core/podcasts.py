@@ -2,7 +2,6 @@ import os
 
 from core.models import PodcastSeries
 
-
 podcast_env_map = {
     "TOTALLY": "The Totally Football Show",
     "TOTALLY_EURO": "The Totally Football Show European Edition",
