@@ -1,4 +1,7 @@
+import pytest
 
+
+@pytest.fixture
 def podcast_page_loggedout_html_str():
     return """<html lang="en" data-darkreader-mode="dynamic" data-darkreader-scheme="dark" class=" ubijjmtccb"><head><style class="darkreader darkreader--fallback" media="screen"></style><style class="darkreader darkreader--text" media="screen"></style><style class="darkreader darkreader--invert" media="screen">.jfk-bubble.gtx-bubble, .captcheck_answer_label > input + img, span#closed_text > img[src^="https://www.gstatic.com/images/branding/googlelogo"], span[data-href^="https://www.hcaptcha.com/"] > #icon, #bit-notification-bar-iframe, ::-webkit-calendar-picker-indicator, img.Wirisformula {
     filter: invert(100%) hue-rotate(180deg) contrast(90%) !important;
@@ -2082,6 +2085,7 @@ Will Deschamps or Scaloni win the tactical battle? Will Mbappe or Messi...<span 
 <next-route-announcer><p aria-live="assertive" id="__next-route-announcer__" role="alert" style="border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 1px; margin: -1px; overflow: hidden; padding: 0px; position: absolute; width: 1px; white-space: nowrap; overflow-wrap: normal; --darkreader-inline-border-top: initial; --darkreader-inline-border-right: initial; --darkreader-inline-border-bottom: initial; --darkreader-inline-border-left: initial;" data-darkreader-inline-border-top="" data-darkreader-inline-border-right="" data-darkreader-inline-border-bottom="" data-darkreader-inline-border-left=""></p></next-route-announcer></body><script data-dismissed-view-state="Closed" defer="" async="" src="/static/scripts/consent-loader.js"></script></html>"""
 
 
+@pytest.fixture
 def podcast_page_loggedout_html_str():
     return """<html lang="en" data-darkreader-mode="dynamic" data-darkreader-scheme="dark" class=" kbepfka"><head><style class="darkreader darkreader--fallback" media="screen"></style><style class="darkreader darkreader--text" media="screen"></style><style class="darkreader darkreader--invert" media="screen">.jfk-bubble.gtx-bubble, .captcheck_answer_label > input + img, span#closed_text > img[src^="https://www.gstatic.com/images/branding/googlelogo"], span[data-href^="https://www.hcaptcha.com/"] > #icon, #bit-notification-bar-iframe, ::-webkit-calendar-picker-indicator, img.Wirisformula {
     filter: invert(100%) hue-rotate(180deg) contrast(90%) !important;

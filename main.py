@@ -3,7 +3,7 @@ from time import sleep
 
 import schedule
 
-from core import ScraperCommand
+from core.scraper import ScraperCommand
 
 
 def main():
