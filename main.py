@@ -1,13 +1,15 @@
 import os
 from time import sleep
 
+from core.scraper import ScraperCommand
 import schedule
-
-from core import ScraperCommand
 
 
 def main():
-    """Entry point for the scraper container. Runs on startup then every n hours as defined by an env var."""
+    """Entry point for the scraper container.
+
+    Runs on startup then every n hours as defined by an env var.
+    """
     scraper = ScraperCommand()
     scraper.run()
     schedule.every(int(os.environ["SCRAPE_INTERVAL_HR"])).hours.do(scraper.run)

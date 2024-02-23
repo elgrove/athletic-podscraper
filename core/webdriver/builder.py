@@ -7,16 +7,20 @@ from selenium import webdriver
 class WebDriverBuilder:
     """Class for building Selenium webdriver instances."""
 
-    def __init__(self):
+    def __init__(self, host=webdriver):
         """Initialise."""
-        self.webdriver_host = "http://webdriver"
+        self.webdriver_host = f"http://{host}"
         self.webdriver_port = 4444
         self.firefox_options = webdriver.FirefoxOptions()
         self.firefox_options.log.level = "fatal"
+        self.firefox_options.add_argument(
+            "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
+        )
 
     @cached_property
     def extensions_dir(self):
-        """Return the extensons directory on the host system as relative to this file."""
+        """Return the extensons directory on the host system as relative to this
+        file."""
         return os.path.abspath(f"{os.path.dirname(__file__)}/extensions")
 
     @property

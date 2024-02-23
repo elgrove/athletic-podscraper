@@ -23,9 +23,24 @@ bump2version = "^1.0.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.2.2"
-black = "^23.3.0"
 python-semantic-release = "^7.33.2"
 pylint = "^2.17.2"
+black = "^23.7.0"
+darglint = "^1.8.0"
+docformatter = "^1.7.2"
+flake8 = "^6.1.0"
+flake8-bandit = "^4.1.1"
+flake8-bugbear = "^23.0.0"
+flake8-docstrings = "^1.6.0"
+flake8-fixme = "^1.1.1"
+flake8-print = "^4.0.0"
+flake8-pyproject = "^1.2.3"
+flake8-pytest-style = "^1.6.0"
+isort = "^5.12.0"
+pytest-env = "^0.8.2"
+pytest-cases = "^3.6.11"
+pytest-mock = "^3.7.0"
+pytest-socket = "^0.5.1"
 
 [tool.pytest.ini_options]
 addopts = [
@@ -34,18 +49,52 @@ addopts = [
 pythonpath = [
   "."
 ]
+markers = [
+  "functional: mark a test as a functional test",
+  "integration: mark as end-to-end integration test.", # are not run in the pipeline
+  "smoke: mark as key tests that shoud cover key or fragile features",
+  "unit: mark a test as a unit test",
+]
+env = ["LOG_LEVEL=INFO",
+      "SCRAPE_INTERVAL_HR=2",
+      "LAST_N_PODCASTS=3",
+      "TOTALLY=1",
+      "TOTALLY_EURO=0",
+      "TIFO=1",
+      "ATHLETIC=0",
+      "CLICHES=0",
+      "TACTICS=0",
+      "TOTTENHAM=1",
+      "CHELSEA=0",
+      "LEEDS=0",
+      "LIVERPOOL=0",
+      "MANCITY=0",
+      "MANUNITED=0",
+      "NEWCASTLE=0",
+]
 
 [tool.pylint.options]
 ignore = [".venv", "pyproject.toml"]
 
 [tool.pylint.messages_control]
-max-line-length = 120
 disable = [
     "missing-module-docstring",
     "too-few-public-methods",
     "invalid-name",
     "fixme",
+    "line-too-long"
 ]
+
+[tool.pylint.format]
+max-module-lines = 1000
+
+[tool.pylint.master]
+jobs=0
+
+[tool.pylint.reports]
+msg-template="{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}"
+reports="no"
+
 
 [tool.semantic_release]
 version_pattern = [
@@ -56,3 +105,36 @@ upload_to_repository = false
 commit_subject = "chore(release): bump to {version}"
 patch_without_tag = true # set to true if bump version required regardless
 branch = "main"
+
+[tool.black]
+target-version = ['py38']
+line-length=88
+
+[tool.isort]
+py_version=38
+profile = "black"
+force_sort_within_sections = "True"
+src_paths = ["src", "tests"]
+
+[tool.flake8]
+select = ['B','D','T','E','F','S','M','C']
+# B = bugbear, checks for code smells
+# D = flake8-docstrings, checks docstrings are present and correct
+# T = flake8-print, checks for print statements
+# E = pycodestyle error level (W = warning level)
+# F = pyflakes, checks for errors in code
+# S = flake8-bandit, security
+# M = flake8-mock, checks for nonexistent mock assert calls
+# C = flake8-mccabe, checks for overly complex code
+ignore = ['D100','D104', 'D2', 'D415', 'E501']
+# D100 = missing docstring at top of module file
+# D104 = missing docstring in package __init__.py
+# D2 = whole class (D2**) of docstring formatting issues
+# D415 = docstring first line must end with a full stop
+# E501 = line-too-long
+application-import-names = ['project_template', 'tests']
+per-file-ignores = ['tests/*:S,DAR101,D101']
+docstring-convention = 'google'
+strictness = 'long' # darglint docstring strictness
+max-line-length = 88
+max-complexity = 10

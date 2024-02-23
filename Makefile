@@ -2,10 +2,13 @@ test:
 	poetry run pytest tests
 
 format:
-	poetry run black .
+	-poetry run docformatter -r --in-place --black core tests main.py || [ $$? -eq 3 ] # accept error code 3 as success
+	poetry run black core tests main.py
+	poetry run isort core tests main.py
 
-lint:
-	poetry run pylint --recursive .
+lint: format
+	poetry run flake8 core tests main.py
+	poetry run pylint core main.py
 
 PACKAGE_VERSION := $(shell poetry version --no-ansi | cut -d " " -f 2)
 IMAGE_NAME := athletic_podscraper
