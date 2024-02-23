@@ -7,8 +7,8 @@ from core.webdriver.builder import WebDriverBuilder
 
 @pytest.fixture(autouse=True)
 def env_vars(monkeypatch):
-    monkeypatch.setenv("LOGIN_EMAIL", "aaron0lovegrove@gmail.com")
-    monkeypatch.setenv("LOGIN_PASS", "Sinistra@211")
+    monkeypatch.setenv("LOGIN_EMAIL", "")
+    monkeypatch.setenv("LOGIN_PASS", "")
 
 
 @pytest.fixture
