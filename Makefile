@@ -32,7 +32,7 @@ else
 	sudo docker build -t ghcr.io/elgrove/$(IMAGE_NAME):$(PACKAGE_VERSION) .
 endif
 
-publish: push build
+publish: build
 ifeq ($(shell uname),Darwin)
 	docker push ghcr.io/elgrove/$(IMAGE_NAME):$(PACKAGE_VERSION)
 else

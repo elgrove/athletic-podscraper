@@ -76,7 +76,7 @@ class PodcastScraper:
 
     def _make_podcast_directory(self):
         """Create a directory for the podcast series in the docker mounted dir."""
-        podcast_dir = f"podcasts/{self.podcast.name}"
+        podcast_dir = f"/podcasts/{self.podcast.name}"
         if not os.path.exists(podcast_dir):
             LOGGER.debug("Making directory for podcast series %s", self.podcast.name)
             os.mkdir(podcast_dir)
@@ -109,7 +109,7 @@ class PodcastScraper:
         jpg."""
         image_url = self._scrape_podcast_json()["image"]
         image_ext = image_url.split(".")[-1]
-        image_filepath = f"podcasts/{self.podcast.name}/Cover."
+        image_filepath = f"/podcasts/{self.podcast.name}/Cover."
         if not os.path.exists(image_filepath + image_ext):
             LOGGER.debug("Downloading image for podcast %s", self.podcast.name)
             self._add_urllib_headers()
@@ -167,7 +167,7 @@ class PodcastScraper:
 
     def _get_mp3_filepath(self, episode):
         """Produce a filepath for a podcast episode to be downloaded into."""
-        return f"podcasts/{self.podcast.name}/{episode.date_published.isoformat()[:10]} {episode.title}.mp3"
+        return f"/podcasts/{self.podcast.name}/{episode.date_published.isoformat()[:10]} {episode.title}.mp3"
 
     def _tag_mp3(self, episode):
         """Write ID3 tags to the episode mp3 file with metadata."""
