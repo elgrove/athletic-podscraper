@@ -7,7 +7,7 @@ from selenium import webdriver
 class WebDriverBuilder:
     """Class for building Selenium webdriver instances."""
 
-    def __init__(self, host=webdriver):
+    def __init__(self, host="webdriver"):
         """Initialise."""
         self.webdriver_host = f"http://{host}"
         self.webdriver_port = 4444
