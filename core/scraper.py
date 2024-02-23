@@ -241,6 +241,5 @@ class ScraperCommand:
         for podcast in self.podcasts:
             LOGGER.info("Working on podcast %s", podcast.name)
             scraper = self.scraper(podcast, driver)
-            scraper.login_to_the_athletic(driver)
             scraper.scrape()
         driver.quit()
