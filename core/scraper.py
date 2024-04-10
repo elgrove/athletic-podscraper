@@ -72,7 +72,7 @@ class PodcastScraper:
         email_field.send_keys(os.environ["LOGIN_EMAIL"])
         password_field.send_keys(os.environ["LOGIN_PASS"])
         password_field.send_keys(Keys.RETURN)
-        self._wait.until(EC.url_to_be("https://theathletic.com/uk/"))
+        self._wait.until(EC.url_matches(r'^https://theathletic\.com/uk/(?:\?.*)?$'))
 
     def _make_podcast_directory(self):
         """Create a directory for the podcast series in the docker mounted dir."""
